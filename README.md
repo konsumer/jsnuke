@@ -1,4 +1,4 @@
-![NPM Version](https://img.shields.io/npm/v/%40konsumer%2Fnuked)
+[![NPM Version](https://img.shields.io/npm/v/%40konsumer%2Fnuked?style=social)](https://www.npmjs.com/package/@konsumer/nuked)
 
 This is an OPL (IMF, WLF, RAW, DRO, VGM, VGZ) player for the web (and elswhere) based on [opl_plr.js by kvee](http://software.kvee.cz/)
 
