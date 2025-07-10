@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+  <head>
+    <title>@konsumer/nuked</title>
+    <style>
+      body {
+        font-family: monospace;
+        color: white;
+        background: black;
+        margin: auto;
+        max-width: 90vw;
+      }
+      a {
+        color: inherit;
+      }
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "@konsumer/nuked": "https://esm.run/@konsumer/nuked",
+          "@konsumer/nuked/nuked-player": "https://esm.run/@konsumer/nuked/nuked-player",
+          "pako": "https://esm.run/pako"
+        }
+      }
+    </script>
+    <script type="module">
+      // this registers the web-component
+      import '@konsumer/nuked/nuked-player'
+    </script>
+  </head>
+  <body>
+    <p>This is used to test various things, like the CDN:</p>
+    <nuked-player src="demos/break_my_heart.imf"></nuked-player>
+
+    <p>Here is a player made with just the wav:</p>
+    <script type="module">
+      import { createWave, imf } from '@konsumer/nuked'
+
+      const queue = imf(await fetch('demos/break_my_heart.imf').then((r) => r.arrayBuffer()))
+      const wav = await createWave(queue)
+      const audioElement = document.createElement('audio')
+      audioElement.controls = true
+      audioElement.src = URL.createObjectURL(new Blob([wav], { type: 'audio/wav' }))
+      document.body.appendChild(audioElement)
+    </script>
+  </body>
+</html>
