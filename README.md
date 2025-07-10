@@ -118,8 +118,6 @@ I do this in [nuked-player.js](docs/nuked-player.js).
 
 ## plans
 
-I would like to make an offline wav-generator, so you can output a sound-file.
-
 Eventually, I would like to minimize any js host requirements, so it can run in more places like:
 
 - [null0](https://github.com/notnullgames/null0)
