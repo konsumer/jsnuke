@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>nukedjs</title>
+    <style>
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "@konsumer/nuked": "./nuked.js"
+        }
+      }
+    </script>
+  </head>
+  <body>
+
+<button class="play">PLAY</button>
+<button class="pause">PAUSE</button>
+<button class="stop">STOP</button>
+
+<div>
+  <input type="range" class="time" min="0" max="100" value="0" step="0.1" />
+  <span class="currentTime">0:00</span> / <span class="totalTime">0:00</span>
+</div>
+
+<script type="module">
+import * as nuke from '@konsumer/nuked'
+
+let opl
+const imfQ = nuke.imf(await fetch('demo.imf').then(r => r.arrayBuffer()))
+
+// context must be added on click
+document.addEventListener('click', async e => {
+  if (!opl) {
+    const ctx = new AudioContext()
+    if (ctx.state === 'suspended') {
+      await ctx.resume()
+    }
+    opl = await nuke.createAudioWorklet(ctx, imfQ)
+    opl.connect(ctx.destination)
+
+    opl.addEventListener('timing', ({ detail: { currentTime, totalTime } }) => {
+      dTime.max = dTotal.innerText = totalTime.toFixed(2)
+      dTime.value = dCurrent.innerText = currentTime.toFixed(2)
+    })
+  }
+})
+
+
+// UI
+const dPlay = document.querySelector('button.play')
+const dPause = document.querySelector('button.pause')
+const dStop = document.querySelector('button.stop')
+const dTime = document.querySelector('input.time')
+const dCurrent = document.querySelector('.currentTime')
+const dTotal = document.querySelector('.totalTime')
+
+dPlay.addEventListener('click', e => {
+  setTimeout(() => opl?.play(), 100)
+})
+
+dPause.addEventListener('click', e => {
+  setTimeout(() => opl?.pause(), 100)
+})
+
+dStop.addEventListener('click', e => {
+  setTimeout(() => {
+    opl?.stop()
+    dTime.value = dCurrent.innerText = '0.00'
+  }, 100)
+})
+
+</script>
+
+
+  </body>
+</html>

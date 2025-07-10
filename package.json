@@ -1,0 +1,28 @@
+{
+  "name": "@konsumer/nuked",
+  "version": "0.0.0",
+  "description": "Yamaha OPL2/3 FM synth chip emulator",
+  "scripts": {
+    "test": "node --test",
+    "build:wasm": "/opt/wasi-sdk/bin/clang -nostartfiles -Wl,--no-entry -Isrc src/main.c src/opl3.c -O3 -o src/nuked.wasm",
+    "build": "npx -y esbuild src/interface.js --format=esm --loader:.wasm=binary --bundle --outfile=docs/nuked.js",
+    "prepublishOnly": "npm run build:wasm && npm run build",
+    "start": "npx -y live-server docs"
+  },
+  "keywords": [
+    "adlib",
+    "sbfmdrv",
+    "opl2",
+    "opl3",
+    "dro",
+    "sb16",
+    "dro",
+    "vgm"
+  ],
+  "author": "David Konsumer <konsumer@jetboystudio.com>",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./docs/nuked.js"
+  }
+}
