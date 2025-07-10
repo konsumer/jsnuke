@@ -2,17 +2,6 @@ This is an OPL (IMF, WLF, RAW, DRO, VGM, VGZ) player for the web (and elswhere) 
 
 The main changes I made are to make it lighter & simpler (and more universal) using wasi-sdk instead of emscripten, and to use `AudioWorkletProcessor` instead of depracated `ScriptProcessor` for sound-generation. This performs better, and runs in more places.
 
-Additionally, I would like to make an offline wav-generator, so you can output a sound-file.
-
-Eventually, I would like to minimize any js host requirements, so it can run in more places like:
-
-- [null0](https://github.com/notnullgames/null0)
-- [null-units](https://github.com/konsumer/null-units)
-
-And I need to test to make sure it works in other js hosts like:
-
-- [web-audio-api](https://github.com/ircam-ismm/node-web-audio-api)
-
 ## installation
 
 You can install in your own project with
@@ -97,4 +86,34 @@ opl.addEventListener('time', ({ current, total }) => {
 const total = nuke.getTimeLength(queue)
 
 ```
+
+
+### vgz
+
+
+VGZ is just gzipped VGM. You can parse it in js like this:
+
+```js
+import { vgm } as nuke from '@konsumer/nuked'
+import pako from 'pako'
+
+const queue = vgm(pako.ungzip(await fetch('mysong.vgz').then(r => r.arrayBuffer())))
+```
+
+I do this in [nuked-player.js](docs/nuked-player.js).
+
+
+## plans
+
+
+I would like to make an offline wav-generator, so you can output a sound-file.
+
+Eventually, I would like to minimize any js host requirements, so it can run in more places like:
+
+- [null0](https://github.com/notnullgames/null0)
+- [null-units](https://github.com/konsumer/null-units)
+
+And I need to test to make sure it works in other js hosts like:
+
+- [web-audio-api](https://github.com/ircam-ismm/node-web-audio-api)
 
