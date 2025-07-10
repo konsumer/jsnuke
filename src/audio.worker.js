@@ -58,11 +58,6 @@ class NukedOpl3Processor extends AudioWorkletProcessor {
       return true
     }
 
-    if (this.afterSeek) {
-      this.samplePosition = this.bufferSize * Math.floor(this.samplePosition / bufferSize)
-      this.afterSeek = false
-    }
-
     const rateFactor = this.soundData.cmdRate / sampleRate
 
     const v = new DataView(this.wasm.memory.buffer)
@@ -112,7 +107,6 @@ class NukedOpl3Processor extends AudioWorkletProcessor {
   }
 
   seek(time) {
-    console.log(time)
     if (!this.soundData?.commands) {
       return
     }
