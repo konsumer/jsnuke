@@ -375,8 +375,68 @@ async function createAudioWorklet(audioContext, queue) {
   }
   return node;
 }
+async function createWave(queue, sampleRate = 44100) {
+  const wasmModule = await WebAssembly.instantiate(nuked_default, {});
+  const opl3 = wasmModule.instance.exports;
+  opl3.reset(sampleRate);
+  const totalSamples = Math.ceil(queue.commands[queue.commands.length - 1].t / queue.cmdRate * sampleRate);
+  const pcmL = new Int16Array(totalSamples);
+  const pcmR = new Int16Array(totalSamples);
+  let samplePos = 0, dataIndex = 0;
+  const rateFactor = queue.cmdRate / sampleRate;
+  const mem = new DataView(wasmModule.instance.exports.memory.buffer);
+  const bufPtr = opl3.buf_ptr();
+  while (samplePos < totalSamples) {
+    while (dataIndex < queue.commands.length && queue.commands[dataIndex].t <= samplePos * rateFactor) {
+      const cmd = queue.commands[dataIndex++];
+      opl3.write(cmd.r, cmd.v);
+    }
+    opl3.render();
+    pcmL[samplePos] = mem.getInt16(bufPtr, true);
+    pcmR[samplePos] = mem.getInt16(bufPtr + 2, true);
+    samplePos++;
+  }
+  const wavBytes = encodeWav([pcmL, pcmR], sampleRate);
+  return wavBytes;
+}
+function encodeWav([pcmL, pcmR], sampleRate) {
+  const numChannels = 2;
+  const bitsPerSample = 16;
+  const blockAlign = numChannels * bitsPerSample / 8;
+  const byteRate = sampleRate * blockAlign;
+  const dataLen = pcmL.length * blockAlign;
+  const wavLen = 44 + dataLen;
+  const buffer = new Uint8Array(wavLen);
+  const view = new DataView(buffer.buffer);
+  writeString(buffer, 0, "RIFF");
+  view.setUint32(4, wavLen - 8, true);
+  writeString(buffer, 8, "WAVE");
+  writeString(buffer, 12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, numChannels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, byteRate, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, bitsPerSample, true);
+  writeString(buffer, 36, "data");
+  view.setUint32(40, dataLen, true);
+  let offset = 44;
+  for (let i = 0; i < pcmL.length; i++) {
+    view.setInt16(offset, pcmL[i], true);
+    view.setInt16(offset + 2, pcmR[i], true);
+    offset += 4;
+  }
+  return buffer;
+}
+function writeString(buf, offset, str) {
+  for (let i = 0; i < str.length; i++) {
+    buf[offset + i] = str.charCodeAt(i);
+  }
+}
 export {
   createAudioWorklet,
+  createWave,
   dro,
   getTimeLength,
   imf,

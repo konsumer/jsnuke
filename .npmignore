@@ -1,3 +1,5 @@
 docs/demos
 docs/index.html
 .prettierrc
+test/
+src/

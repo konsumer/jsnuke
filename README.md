@@ -24,7 +24,7 @@ You can add to the web with:
 </script>
 ```
 
-Now you can import from these, if your script-tag has `type=module`. If you want optional VGZ support (and are using the web-component) add `pako`. 
+Now you can import from these, if your script-tag has `type=module`. If you want optional VGZ support (and are using the web-component) add `pako`.
 
 ## usage
 
@@ -40,16 +40,33 @@ There are a few ways to use it. The easiest is a quick web-component:
 
 There are a few functions exported:
 
-
 ```js
 // these create a "queue" from various files (as Uint8Array or ArrayBuffer, or whatever)
-imf(imfData, imfRate = 560)
+imf(imfData, (imfRate = 560))
 raw(rawData)
 dro(droData)
 vgm(vgmData, loopRepeat)
 
 // this creates an audio-worklet for playback
 createAudioWorklet(audioContext, queue)
+
+// This generates a Uint8Array of bytes foir a WAV-file, and can be used offline
+createWave(queue)
+```
+
+### waav
+
+You can generate a WAV (RIFF, uncompressed) file for use in anyhting else:
+
+```js
+// create a queue from a file
+const queue = imf(await fetch('mysong.imf').then((r) => r.arrayBuffer()))
+
+// create WAV-bytes from queue
+const wav = await createWave(queue)
+
+// create a URL (on web) suitable for a audio-tag
+const url = URL.createObjectURL(new Blob([wav], { type: 'audio/wav' }))
 ```
 
 ### worklet
@@ -63,7 +80,7 @@ import { imf, createAudioWorklet } from '@konsumer/nuked'
 const ctx = new AudioContext()
 
 // create a queue from a file
-const queue = imf(await fetch('mysong.imf').then(r => r.arrayBuffer()))
+const queue = imf(await fetch('mysong.imf').then((r) => r.arrayBuffer()))
 
 // create a worklet from a queue/context
 const opl = await createAudioWorklet(ctx, queue)
@@ -84,12 +101,9 @@ opl.addEventListener('time', ({ current, total }) => {
 
 // you can also get the time right after parsing it (in case you need time, but can't play it through audio-context)
 const total = nuke.getTimeLength(queue)
-
 ```
 
-
 ### vgz
-
 
 VGZ is just gzipped VGM. You can parse it in js like this:
 
@@ -102,9 +116,7 @@ const queue = vgm(pako.ungzip(await fetch('mysong.vgz').then(r => r.arrayBuffer(
 
 I do this in [nuked-player.js](docs/nuked-player.js).
 
-
 ## plans
-
 
 I would like to make an offline wav-generator, so you can output a sound-file.
 
@@ -116,4 +128,3 @@ Eventually, I would like to minimize any js host requirements, so it can run in 
 And I need to test to make sure it works in other js hosts like:
 
 - [web-audio-api](https://github.com/ircam-ismm/node-web-audio-api)
-

@@ -31,9 +31,7 @@ import wasmBytes from './nuked.wasm'
 import workerSource from './audio.worker.js'
 const workletJS = workerSource.replace('WASMBYTES', wasmBytes.join(','))
 
-
-const debug = false ? console.debug : (()=>{})
-
+const debug = false ? console.debug : () => {}
 
 /*
  * It targets wasi-compiled code that exposes the following API functions / arrays:
@@ -422,7 +420,7 @@ export function vgm(vgmData, loopRepeat) {
 }
 
 // Helper, if you need info from just the queue
-export const getTimeLength = s => !s?.commands || s.commands.length == 0 ? 0 : s.commands[s.commands.length - 1].t / s.cmdRate
+export const getTimeLength = (s) => (!s?.commands || s.commands.length == 0 ? 0 : s.commands[s.commands.length - 1].t / s.cmdRate)
 
 // wait for an audio-context port-message a certain type
 const waitForMessage = (port, type, timeout = 500) =>
@@ -490,4 +488,95 @@ export async function createAudioWorklet(audioContext, queue) {
   }
 
   return node
+}
+
+// Generate a WAV file from a queue
+export async function createWave(queue, sampleRate = 44100) {
+  // 1. Instantiate WASM OPL3 core
+  const wasmModule = await WebAssembly.instantiate(wasmBytes, {})
+  const opl3 = wasmModule.instance.exports
+
+  // 2. Reset OPL3 with sample rate
+  opl3.reset(sampleRate)
+
+  // 3. Prepare PCM buffer
+  const totalSamples = Math.ceil((queue.commands[queue.commands.length - 1].t / queue.cmdRate) * sampleRate)
+  const pcmL = new Int16Array(totalSamples)
+  const pcmR = new Int16Array(totalSamples)
+
+  let samplePos = 0,
+    dataIndex = 0
+  const rateFactor = queue.cmdRate / sampleRate
+  const mem = new DataView(wasmModule.instance.exports.memory.buffer)
+  const bufPtr = opl3.buf_ptr()
+
+  while (samplePos < totalSamples) {
+    // Write all commands scheduled for this sample
+    while (dataIndex < queue.commands.length && queue.commands[dataIndex].t <= samplePos * rateFactor) {
+      const cmd = queue.commands[dataIndex++]
+      opl3.write(cmd.r, cmd.v)
+    }
+
+    // Render one frame
+    opl3.render()
+
+    // Read PCM samples (stereo)
+    pcmL[samplePos] = mem.getInt16(bufPtr, true)
+    pcmR[samplePos] = mem.getInt16(bufPtr + 2, true)
+
+    samplePos++
+  }
+
+  // 4. Encode as WAV (no deps)
+  const wavBytes = encodeWav([pcmL, pcmR], sampleRate)
+
+  // 5. Return as Uint8Array
+  return wavBytes
+}
+
+// Helper: Write a minimal 16-bit stereo WAV header and append PCM
+function encodeWav([pcmL, pcmR], sampleRate) {
+  const numChannels = 2
+  const bitsPerSample = 16
+  const blockAlign = (numChannels * bitsPerSample) / 8
+  const byteRate = sampleRate * blockAlign
+  const dataLen = pcmL.length * blockAlign
+  const wavLen = 44 + dataLen
+  const buffer = new Uint8Array(wavLen)
+  const view = new DataView(buffer.buffer)
+
+  // RIFF header
+  writeString(buffer, 0, 'RIFF')
+  view.setUint32(4, wavLen - 8, true)
+  writeString(buffer, 8, 'WAVE')
+
+  // fmt chunk
+  writeString(buffer, 12, 'fmt ')
+  view.setUint32(16, 16, true) // PCM header size
+  view.setUint16(20, 1, true) // PCM format
+  view.setUint16(22, numChannels, true)
+  view.setUint32(24, sampleRate, true)
+  view.setUint32(28, byteRate, true)
+  view.setUint16(32, blockAlign, true)
+  view.setUint16(34, bitsPerSample, true)
+
+  // data chunk
+  writeString(buffer, 36, 'data')
+  view.setUint32(40, dataLen, true)
+
+  // PCM data (interleaved)
+  let offset = 44
+  for (let i = 0; i < pcmL.length; i++) {
+    view.setInt16(offset, pcmL[i], true)
+    view.setInt16(offset + 2, pcmR[i], true)
+    offset += 4
+  }
+
+  return buffer
+}
+
+function writeString(buf, offset, str) {
+  for (let i = 0; i < str.length; i++) {
+    buf[offset + i] = str.charCodeAt(i)
+  }
 }

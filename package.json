@@ -1,6 +1,6 @@
 {
   "name": "@konsumer/nuked",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Yamaha OPL2/3 FM synth chip emulator",
   "scripts": {
     "test": "node --test",
@@ -28,5 +28,9 @@
   "exports": {
     ".": "./docs/nuked.js",
     "./nuked-player": "./docs/nuked-player.js"
-  }
+  },
+  "files": [
+    "./docs/nuked-player.js",
+    "./docs/nuked.js"
+  ]
 }
