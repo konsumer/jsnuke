@@ -36,7 +36,7 @@ class NukedPlayer extends HTMLElement {
         <button>⏸️</button>
         <button>⏹️</button>
         <input type="range" value="0" step="0.01" />
-        <span>0:00</span> / <span>0:00</span> : 
+        <span>0.00</span> / <span>0.00</span> : 
         <span></span>
       </div>
     `
@@ -45,7 +45,20 @@ class NukedPlayer extends HTMLElement {
     const timeSlider = shadow.querySelector('input')
     const [timeCurrent, timeTotal, nameSpace] = shadow.querySelectorAll('span')
 
+    this.timeSlider = timeSlider
+    this.timeTotal = timeTotal
     this.nameSpace = nameSpace
+
+    this.sliding = false
+    timeSlider.addEventListener('mousedown', () => {
+      this.sliding = true
+    })
+    timeSlider.addEventListener('mouseup', () => {
+      this.sliding = false
+      if (this.opl) {
+        this.opl.seek(parseFloat(timeSlider.value))
+      }
+    })
 
     shadow.addEventListener('click', async () => {
       const ctx = new AudioContext()
@@ -57,8 +70,10 @@ class NukedPlayer extends HTMLElement {
         delete this.soundq
         this.opl.connect(ctx.destination)
         this.opl.addEventListener('time', ({ current, total }) => {
-          timeSlider.value = timeCurrent.innerText = current.toFixed(2)
-          timeSlider.max = timeTotal.innerText = total.toFixed(2)
+          if (!this.sliding) {
+            timeSlider.value = timeCurrent.innerText = current.toFixed(2)
+            timeSlider.max = timeTotal.innerText = total.toFixed(2)
+          }
         })
       }
     })
@@ -95,6 +110,9 @@ class NukedPlayer extends HTMLElement {
           .then((bytes) => {
             this.nameSpace.innerText = basename(newValue)
             this.soundq = parser(bytes)
+            // hack to get total before audio-context can start
+            const total = !this.soundq?.commands || this.soundq.commands.length == 0 ? 0 : this.soundq.commands[this.soundq.commands.length - 1].t / this.soundq.cmdRate
+            this.timeSlider.max = this.timeTotal.innerText = total.toFixed(2)
           })
       }
     }

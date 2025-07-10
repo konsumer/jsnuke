@@ -31,6 +31,10 @@ import wasmBytes from './nuked.wasm'
 import workerSource from './audio.worker.js'
 const workletJS = workerSource.replace('WASMBYTES', wasmBytes.join(','))
 
+
+const debug = false ? console.debug : (()=>{})
+
+
 /*
  * It targets wasi-compiled code that exposes the following API functions / arrays:
  *
@@ -76,7 +80,7 @@ export function imf(imfData, imfRate = 560) {
   }
   var arr = new Uint8Array(imfData)
 
-  // console.debug("IMF file rate:", imfRate);
+  // debug("IMF file rate:", imfRate);
 
   var time = 0
   var length = arr[0] | (arr[1] << 8)
@@ -112,7 +116,7 @@ export function raw(rawData) {
     return soundLoad(soundData)
   }
 
-  // console.debug("RAW file");
+  // debug("RAW file");
 
   var time = 0
   var clock = get16(8)
@@ -162,23 +166,23 @@ export function dro(droData) {
 
   const version = get16(8).toString(16) + '.' + get16(10).toString(16)
 
-  console.debug('DRO file version:', version == '0.1' ? 1.0 : +version)
+  debug('DRO file version:', version == '0.1' ? 1.0 : +version)
 
   if (version < 2) {
     const hardware = arr[0x14]
     switch (hardware) {
       case 0:
-        console.debug('Chip type: OPL2')
+        debug('Chip type: OPL2')
         break
       case 1:
-        console.debug('Chip type: OPL3')
+        debug('Chip type: OPL3')
         break
       case 2:
-        console.debug('Chip type: Dual OPL2')
+        debug('Chip type: Dual OPL2')
         soundData.dualOpl2Mode = true
         break
       default:
-        console.debug('Unknown chip type!')
+        debug('Unknown chip type!')
         return soundLoad(soundData)
     }
     const dataOffset = get32(0x14) - hardware == 0 ? 0x18 : 0x15
@@ -230,17 +234,17 @@ export function dro(droData) {
     const hardware = arr[0x14]
     switch (hardware) {
       case 0:
-        console.debug('Chip type: OPL2')
+        debug('Chip type: OPL2')
         break
       case 1:
-        console.debug('Chip type: Dual OPL2')
+        debug('Chip type: Dual OPL2')
         soundData.dualOpl2Mode = true
         break
       case 2:
-        console.debug('Chip type: OPL3')
+        debug('Chip type: OPL3')
         break
       default:
-        console.debug('Unknown chip type!')
+        debug('Unknown chip type!')
         return soundLoad(soundData)
     }
 
@@ -312,24 +316,24 @@ export function vgm(vgmData, loopRepeat) {
   const version = get32(8).toString(16)
   const dataOffset = version < 150 ? 0x40 : 0x34 + get32(0x34)
 
-  console.debug('VGM file version:', +(version / 100).toFixed(2), 'data offset:', dataOffset)
+  debug('VGM file version:', +(version / 100).toFixed(2), 'data offset:', dataOffset)
 
   var loopOffset = get32(0x1c)
   if (loopOffset) loopOffset += 0x1c
   const loopCount = get32(0x20)
-  if (loopCount) console.debug('Loop present:', loopCount, '@', loopOffset)
+  if (loopCount) debug('Loop present:', loopCount, '@', loopOffset)
 
   const clockOpl2 = get32(0x50) & 0x3fffffff
   const clockOpl3 = get32(0x5c) & 0x3fffffff
-  if (clockOpl2 == 3579545) console.debug('OPL2 detected:', clockOpl2, 'Hz', '(standard clock rate)')
-  else if (clockOpl2) console.debug('OPL2 detected:', clockOpl2, 'Hz')
-  if (clockOpl3 == 14318180) console.debug('OPL3 detected:', clockOpl3, 'Hz', '(standard clock rate)')
-  else if (clockOpl3) console.debug('OPL3 detected:', clockOpl3, 'Hz')
+  if (clockOpl2 == 3579545) debug('OPL2 detected:', clockOpl2, 'Hz', '(standard clock rate)')
+  else if (clockOpl2) debug('OPL2 detected:', clockOpl2, 'Hz')
+  if (clockOpl3 == 14318180) debug('OPL3 detected:', clockOpl3, 'Hz', '(standard clock rate)')
+  else if (clockOpl3) debug('OPL3 detected:', clockOpl3, 'Hz')
 
   const dualOpl2 = get32(0x50) & 0x40000000
   const dualOpl3 = get32(0x5c) & 0x40000000
   if (dualOpl2) {
-    console.debug('Dual OPL2 mode!')
+    debug('Dual OPL2 mode!')
     soundData.dualOpl2Mode = true
   }
   if (dualOpl3) {
@@ -464,6 +468,8 @@ export async function createAudioWorklet(audioContext, queue) {
   node.port.addEventListener('message', ({ data: { type, ...info } }) => {
     if (type === 'time') {
       node.dispatchEvent(new TimeEvent(info))
+      node.timeTotal = info.total
+      node.timeCurrent = info.current
     }
   })
 

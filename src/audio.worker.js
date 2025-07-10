@@ -15,6 +15,7 @@ class NukedOpl3Processor extends AudioWorkletProcessor {
     this.port.onmessage = ({ data: { type, ...args } }) => {
       if (type === 'queue') {
         this.queuedSoundData = args.queue
+        this.sendTime(this.queuedSoundData)
         this.port.postMessage({ type: 'queue' })
         this.wasm.reset(sampleRate)
         this.stop()
@@ -47,9 +48,7 @@ class NukedOpl3Processor extends AudioWorkletProcessor {
 
     // every 20 data-frames output info about time
     if (this.i++ % 20 === 0) {
-      const current = this.samplePosition / (sampleRate ?? 1)
-      const total = !this.soundData?.commands || this.soundData.commands.length == 0 ? 0 : this.soundData.commands[this.soundData.commands.length - 1].t / this.soundData.cmdRate
-      this.port.postMessage({ type: 'time', total, current })
+      this.sendTime(this.soundData)
     }
 
     if (!this.soundData || this.softStop > 0) {
@@ -69,6 +68,11 @@ class NukedOpl3Processor extends AudioWorkletProcessor {
     const v = new DataView(this.wasm.memory.buffer)
     const ptr = this.wasm.buf_ptr()
 
+    if (this.afterSeek) {
+      this.samplePosition = bufferSize * Math.floor(this.samplePosition / bufferSize)
+      this.afterSeek = false
+    }
+
     for (var sample = 0; sample < bufferSize; sample++) {
       while (this.dataIndex < this.soundData.commands.length && this.soundData.commands[this.dataIndex].t <= this.samplePosition * rateFactor) {
         const command = this.soundData.commands[this.dataIndex++]
@@ -87,6 +91,12 @@ class NukedOpl3Processor extends AudioWorkletProcessor {
     return true
   }
 
+  sendTime(soundData) {
+    const current = (this.samplePosition || 0) / (sampleRate ?? 1)
+    const total = !soundData?.commands || soundData.commands.length == 0 ? 0 : soundData.commands[soundData.commands.length - 1].t / soundData.cmdRate
+    this.port.postMessage({ type: 'time', total, current })
+  }
+
   pause() {
     this.softStop = this.softStop ? 0 : 1
   }
@@ -102,6 +112,7 @@ class NukedOpl3Processor extends AudioWorkletProcessor {
   }
 
   seek(time) {
+    console.log(time)
     if (!this.soundData?.commands) {
       return
     }
