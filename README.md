@@ -4,7 +4,7 @@ The main changes I made are to make it lighter & simpler (and more universal) us
 
 ## installation
 
-You can install in your own project with
+You can install in your own project (for bundling with vite, etc) with:
 
 ```sh
 npm i @konsumer/nuked
