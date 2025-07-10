@@ -5,9 +5,11 @@
   "scripts": {
     "test": "node --test",
     "build:wasm": "/opt/wasi-sdk/bin/clang -nostartfiles -Wl,--no-entry -Isrc src/main.c src/opl3.c -O3 -o src/nuked.wasm",
-    "build": "npx -y esbuild src/interface.js --format=esm --loader:.wasm=binary --bundle --outfile=docs/nuked.js",
-    "prepublishOnly": "npm run build:wasm && npm run build",
-    "start": "npx -y live-server docs"
+    "build": "npx -y esbuild src/interface.js --format=esm --loader:.wasm=binary --loader:.worker.js=text --bundle --outfile=docs/nuked.js",
+    "build:watch": "npm run build -- --watch",
+    "webserver": "npx -y live-server docs",
+    "prepublishOnly": "npm run build",
+    "start": "npx -y npm-run-all --parallel webserver build:watch"
   },
   "keywords": [
     "adlib",
@@ -23,6 +25,7 @@
   "license": "MIT",
   "type": "module",
   "exports": {
-    ".": "./docs/nuked.js"
+    ".": "./docs/nuked.js",
+    "./nuked-player": "./docs/nuked-player.js"
   }
 }
