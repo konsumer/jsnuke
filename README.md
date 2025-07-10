@@ -54,7 +54,7 @@ createAudioWorklet(audioContext, queue)
 createWave(queue)
 ```
 
-### waav
+### wav
 
 You can generate a WAV (RIFF, uncompressed) file for use in anyhting else:
 
