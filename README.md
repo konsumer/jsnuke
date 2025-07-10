@@ -48,7 +48,7 @@ raw(rawData)
 dro(droData)
 vgm(vgmData, loopRepeat)
 
-// these creates an audio-worklet
+// this creates an audio-worklet for playback
 createAudioWorklet(audioContext, queue)
 ```
 
