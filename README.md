@@ -71,6 +71,8 @@ const wav = await createWave(queue)
 const url = URL.createObjectURL(new Blob([wav], { type: 'audio/wav' }))
 ```
 
+You can see an example of this, in [test.html](docs/test.html). It's a bit slower than direct-output, but it works in places where you cannot use the worklet (native node/deno/bun/etc.)
+
 ### worklet
 
 [AudioWorkletProcessor](https://developer.mozilla.org/en-US/docs/Web/API/AudioWorkletProcessor) is a hyper-efficient worker (similar to thread) that will run audio-processing in the background. You can use it like this:
@@ -87,7 +89,7 @@ const queue = imf(await fetch('mysong.imf').then((r) => r.arrayBuffer()))
 // create a worklet from a queue/context
 const opl = await createAudioWorklet(ctx, queue)
 
-// connect it to output
+// connect it to output. you can also use effects see https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Using_Web_Audio_API
 opl.connect(ctx.destination)
 
 // stuff you can do
@@ -116,7 +118,7 @@ import pako from 'pako'
 const queue = vgm(pako.ungzip(await fetch('mysong.vgz').then(r => r.arrayBuffer())))
 ```
 
-I do this in [nuked-player.js](docs/nuked-player.js).
+I do this in [nuked-player web-component](docs/nuked-player.js).
 
 ## plans
 
@@ -125,6 +127,6 @@ Eventually, I would like to minimize any js host requirements, so it can run in 
 - [null0](https://github.com/notnullgames/null0)
 - [null-units](https://github.com/konsumer/null-units)
 
-And I need to test to make sure it works in other js hosts like:
+And I need to test to make sure it works in other js AudioContext-hosts like:
 
 - [web-audio-api](https://github.com/ircam-ismm/node-web-audio-api)
