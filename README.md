@@ -1,6 +1,8 @@
+![NPM Version](https://img.shields.io/npm/v/%40konsumer%2Fnuked)
+
 This is an OPL (IMF, WLF, RAW, DRO, VGM, VGZ) player for the web (and elswhere) based on [opl_plr.js by kvee](http://software.kvee.cz/)
 
-The main changes I made are to make it lighter & simpler (and more universal) using wasi-sdk instead of emscripten, and to use `AudioWorkletProcessor` instead of depracated `ScriptProcessor` for sound-generation. This performs better, and runs in more places.
+The main changes I made are to make it lighter & simpler (and more universal) using wasi-sdk instead of emscripten, and to use `AudioWorkletProcessor` instead of depracated `ScriptProcessor` for sound-generation. This performs better, and runs in more places. I also added wave-out support, so it can be used in other places.
 
 ## installation
 
