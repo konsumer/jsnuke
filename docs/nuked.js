@@ -320,6 +320,7 @@ function vgm(vgmData, loopRepeat) {
   }
   return soundLoad(soundData);
 }
+var getTimeLength = (s) => !s?.commands || s.commands.length == 0 ? 0 : s.commands[s.commands.length - 1].t / s.cmdRate;
 var waitForMessage = (port, type, timeout = 500) => new Promise((resolve, reject) => {
   const cb = ({ data }) => {
     if (data.type === type) {
@@ -377,6 +378,7 @@ async function createAudioWorklet(audioContext, queue) {
 export {
   createAudioWorklet,
   dro,
+  getTimeLength,
   imf,
   raw,
   vgm

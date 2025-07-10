@@ -118,7 +118,7 @@ class NukedPlayer extends HTMLElement {
             this.nameSpace.innerText = basename(newValue)
             this.soundq = parser(bytes)
             // hack to get total before audio-context can start
-            const total = !this.soundq?.commands || this.soundq.commands.length == 0 ? 0 : this.soundq.commands[this.soundq.commands.length - 1].t / this.soundq.cmdRate
+            const total = nuke.getTimeLength(this.soundq)
             this.timeSlider.max = this.timeTotal.innerText = total.toFixed(2)
           })
       }

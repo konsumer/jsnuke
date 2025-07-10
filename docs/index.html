@@ -18,11 +18,15 @@
       {
         "imports": {
           "@konsumer/nuked": "./nuked.js",
+          "@konsumer/nuked/nuked-player": "./nuked-player.js",
           "pako": "https://esm.run/pako"
         }
       }
     </script>
-    <script src="nuked-player.js" type="module"></script>
+    <script type="module">
+      // this registers the web-component
+      import '@konsumer/nuked/nuked-player'
+    </script>
   </head>
   <body>
     <p>

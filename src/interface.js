@@ -421,6 +421,9 @@ export function vgm(vgmData, loopRepeat) {
   return soundLoad(soundData)
 }
 
+// Helper, if you need info from just the queue
+export const getTimeLength = s => !s?.commands || s.commands.length == 0 ? 0 : s.commands[s.commands.length - 1].t / s.cmdRate
+
 // wait for an audio-context port-message a certain type
 const waitForMessage = (port, type, timeout = 500) =>
   new Promise((resolve, reject) => {
