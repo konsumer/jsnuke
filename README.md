@@ -8,3 +8,7 @@ Eventually, I would like to minimize any js host requirements, so it can run in 
 
 - [null0](https://github.com/notnullgames/null0)
 - [null-units](https://github.com/konsumer/null-units)
+
+And I need to test to mak esure it works in other js hosts like:
+
+- [web-audio-api](https://github.com/ircam-ismm/node-web-audio-api)
