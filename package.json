@@ -22,7 +22,7 @@
     "vgm"
   ],
   "author": "David Konsumer <konsumer@jetboystudio.com>",
-  "homepage": "https://konsumer.js.org/jsnuke/",
+  "homepage": "https://konsumer.js.org/nuked/",
   "license": "MIT",
   "type": "module",
   "exports": {
