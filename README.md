@@ -126,6 +126,7 @@ Eventually, I would like to minimize any js host requirements, so it can run in 
 
 - [null0](https://github.com/notnullgames/null0)
 - [null-units](https://github.com/konsumer/null-units)
+- support [many more formats](https://github.com/SudoMaker/adlib2vgm)
 
 And I need to test to make sure it works in other js AudioContext-hosts like:
 
