@@ -1,8 +1,13 @@
 // this is a simple web-component to encapsulate loading a simple little player
 
 import * as nuke from '@konsumer/nuked'
+import pako from 'pako'
 
 const basename = (f) => f.split('/').pop()
+
+// VGZ is just compressed VGM
+const vgzHandler = b => nuke.vgm(pako.ungzip(b))
+
 
 class NukedPlayer extends HTMLElement {
   static get observedAttributes() {
@@ -100,6 +105,8 @@ class NukedPlayer extends HTMLElement {
         parser = nuke.dro
       } else if (newValue.toLowerCase().endsWith('.vgm')) {
         parser = nuke.vgm
+      } else if (newValue.toLowerCase().endsWith('.vgz')) {
+        parser = vgzHandler
       } else {
         parser = nuke.raw
       }

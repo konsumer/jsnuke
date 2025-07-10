@@ -1,28 +1,43 @@
 <!doctype html>
 <html>
   <head>
-    <title>nukedjs</title>
+    <title>@konsumer/nuked</title>
     <style>
       body {
         font-family: monospace;
         color: white;
         background: black;
+        margin: auto;
+        max-width: 90vw;
+      }
+      a {
+        color:inherit;
       }
     </style>
     <script type="importmap">
       {
         "imports": {
-          "@konsumer/nuked": "./nuked.js"
+          "@konsumer/nuked": "./nuked.js",
+          "pako": "https://esm.run/pako"
         }
       }
     </script>
     <script src="nuked-player.js" type="module"></script>
   </head>
   <body>
+    <p>
+      These are some demos of <a href="https://github.com/konsumer/jsnuke">@konsumer/nuked</a>. View the source to see how I use <code>nuked-player</code> web-component.
+    </p>
     <nuked-player src="demos/break_my_heart.imf"></nuked-player>
     <nuked-player src="demos/game_over_[opl2_remix].imf"></nuked-player>
     <nuked-player src="demos/heavy_blow_[opl2_remix].imf"></nuked-player>
     <nuked-player src="demos/mega_man_3_stage_select_[opl2_remix].imf"></nuked-player>
     <nuked-player src="demos/the_prelude_[ff_vii]_[opl3_remix].dro"></nuked-player>
+    <nuked-player src="demos/RRThiel - VS GREEN BIKER DUDE.vgz"></nuked-player>
+    <nuked-player src="demos/Some Brutal.vgz"></nuked-player>
+    <nuked-player src="demos/Underground Cave Complex.vgz"></nuked-player>
   </body>
 </html>
+
+
+
