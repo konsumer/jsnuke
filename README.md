@@ -139,7 +139,7 @@ const total = nuke.getTimeLength(queue)
 VGZ is just gzipped VGM. You can parse it in js like this:
 
 ```js
-import { vgm } as nuke from '@konsumer/nuked'
+import { vgm } from '@konsumer/nuked'
 import pako from 'pako'
 
 const queue = vgm(pako.ungzip(await fetch('mysong.vgz').then(r => r.arrayBuffer())))
