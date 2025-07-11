@@ -12,7 +12,7 @@ You can install in your own project (for bundling with vite, etc) with:
 npm i @konsumer/nuked
 ```
 
-You can add to the web with:
+Or, you can add to the web with:
 
 ```html
 <script type="importmap">
