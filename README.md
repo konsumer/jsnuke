@@ -86,7 +86,7 @@ await writeFile("break_my_heart.wav", w);
 await writeFile("break_my_heart.wav", await readFile("break_my_heart.imf").then(imf).then(createWave));
 ```
 
-Here is a full [bun](https://bun.sh/) (using file built-ins, but you could use node-code, above, too) example:
+Here is a full [bun](https://bun.sh/) example (using file built-ins, but you could use node-code, above, too):
 
 ```js
 import { imf, createWave } from "@konsumer/nuked"
