@@ -81,6 +81,9 @@ const f = await readFile("break_my_heart.imf");
 const q = imf(f);
 const w = await createWave(q);
 await writeFile("break_my_heart.wav", w);
+
+// or 1-line conversion:
+await writeFile("break_my_heart.wav", await readFile("break_my_heart.imf").then(imf).then(createWave));
 ```
 
 Here is a full [bun](https://bun.sh/) (using built-ins) example:
