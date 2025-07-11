@@ -52,7 +52,7 @@ vgm(vgmData, loopRepeat)
 // this creates an audio-worklet for playback
 createAudioWorklet(audioContext, queue)
 
-// This generates a Uint8Array of bytes foir a WAV-file, and can be used offline
+// This generates a Uint8Array of bytes for a WAV-file, and can be used offline
 createWave(queue)
 ```
 
@@ -69,6 +69,30 @@ const wav = await createWave(queue)
 
 // create a URL (on web) suitable for a audio-tag
 const url = URL.createObjectURL(new Blob([wav], { type: 'audio/wav' }))
+```
+
+Here is a full nodejs example:
+
+```js
+import { imf, createWave } from "@konsumer/nuked";
+import { readFile, writeFile } from "node:fs/promises";
+
+const f = await readFile("break_my_heart.imf");
+const q = imf(f);
+const w = await createWave(q);
+await writeFile("break_my_heart.wav", w);
+```
+
+Here is a full [bun](https://bun.sh/) (using built-ins) example:
+
+```js
+import { imf, createWave } from "@konsumer/nuked"
+
+const f = await Bun.file("break_my_heart.imf")
+const b = await f.arrayBuffer()
+const q = imf(b)
+const w = await createWave(q)
+await Bun.write("break_my_heart.wav", w)
 ```
 
 You can see an example of this, in [test.html](docs/test.html). It's a bit slower than direct-output, but it works in places where you cannot use the worklet (native node/deno/bun/etc.)
